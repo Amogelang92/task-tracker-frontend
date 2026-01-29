@@ -1,0 +1,131 @@
+<div class="tasks-container">
+  <h2>Tasks List</h2>
+
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <button class="add-btn" (click)="openCreate()">+ Create Task</button>
+
+    <select style="width: 20%;" class="form-select" (change)="onSortChange($any($event.target).value)">
+      <option value="dueDate:asc">Due Date ↑</option>
+      <option value="dueDate:desc">Due Date ↓</option>
+    </select>
+
+    <input
+      type="text" style="width: 20%;" class="form-control" name="search"
+      (input)="onSearch($any($event.target).value)" placeholder="Search tasks..."/>
+    <br/>
+  </div>
+
+  <table class="tasks-table">
+    <thead>
+    <tr>
+      <th>Title</th>
+      <th>Status</th>
+      <th>Priority</th>
+      <th>Due Date</th>
+      <th>Created Date</th>
+      <th width="140">Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let task of tasks">
+      <td>{{ task.title }}</td>
+      <td>{{ task.status }}</td>
+      <td>{{ task.priority }}</td>
+      <td>{{ task.dueDate ? (task.dueDate | date:'yyyy-MM-dd') : '-' }}</td>
+      <td>{{ task.createdAt ? (task.createdAt | date:'yyyy-MM-dd') : '-'  }}</td>
+      <td>
+        <button class="btn btn-sm btn-outline-secondary me-1" (click)="openEdit(task)">Edit</button>
+        <button class="btn btn-sm btn-outline-danger" (click)="deleteTask(task.id)">Delete</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!isLoading && tasks.length === 0" class="no-data">
+    No tasks available.
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Backdrop -->
+  <div class="modal-backdrop fade show" *ngIf="showModal"></div>
+
+  <!-- Modal -->
+  <div style="margin-left: 40%;" class="modal fade show d-block" tabindex="-1" *ngIf="showModal">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title">
+            {{ formMode === 'add' ? 'Add Task' : 'Edit Task' }}
+          </h5>
+          <button type="button" class="btn-close" (click)="closeModal()"></button>
+        </div>
+
+        <div class="modal-body">
+          <form [formGroup]="taskForm" (ngSubmit)="save()">
+
+            <div class="mb-3">
+              <label for="title" class="form-label">Title *</label>
+              <input
+                id="title"
+                name="title"
+                class="form-control"
+                formControlName="title"
+                required
+              />
+              <div class="text-danger mt-1"
+                   *ngIf="taskForm.get('title')?.invalid && (taskForm.get('title')?.touched || taskForm.get('title')?.dirty)">
+                Task title is required.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea
+                id="description"
+                name="description"
+                rows="2"
+                class="form-control"
+                formControlName="description">
+            </textarea>
+            </div>
+
+            <div class="mb-3">
+              <label for="status" class="form-label">Status</label>
+              <select id="status" name="status" class="form-control" formControlName="status">
+                <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="priority" class="form-label">Priority</label>
+              <select id="priority" name="priority" class="form-control" formControlName="priority">
+                <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label for="dueDate" class="form-label">Due Date</label>
+              <input type="date" id="dueDate" name="dueDate" class="form-control" formControlName="dueDate" />
+            </div>
+
+            <div class="d-flex justify-content-end gap-2">
+              <button type="submit" class="btn btn-primary" [disabled]="taskForm.invalid">
+                {{ formMode === 'add' ? 'Save' : 'Update' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+            </div>
+
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
