@@ -125,16 +125,21 @@ export class TasksComponent implements OnInit{
   openEdit(task: Task): void {
     this.formMode = 'edit';
     this.editingTaskId = task.id;
-    this.taskForm.patchValue({
-      title: task.title,
-      description: task.description,
-      status: task.status,
-      priority: task.priority,
-      dueDate: task.dueDate
-        ? task.dueDate.substring(0, 10)
-        : null
+
+    this.taskService.getTask(task.id).subscribe({
+      next: (fullTask) => {
+        console.log(fullTask)
+        this.taskForm.patchValue({
+          title: fullTask.title,
+          description: fullTask.description,
+          status: fullTask.status,
+          priority: fullTask.priority,
+          dueDate: fullTask.dueDate ? fullTask.dueDate.substring(0, 10) : null
+        });
+        this.showModal = true;
+      },
+      error: () => alert('Failed to load task.')
     });
-    this.showModal = true;
   }
 
   closeModal(): void {
